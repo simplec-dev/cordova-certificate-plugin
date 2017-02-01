@@ -27,14 +27,18 @@
  */
 package de.martinreinhardt.cordova.plugins;
 
-import org.apache.cordova.engine.SystemWebViewEngine;
-import org.apache.cordova.engine.CertificatesCordovaWebViewClient;
-import org.apache.cordova.engine.SystemWebView;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaActivity;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.engine.CertificatesCordovaWebViewClient;
+import org.apache.cordova.engine.SystemWebView;
+import org.apache.cordova.engine.SystemWebViewEngine;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -50,13 +54,6 @@ import android.util.Log;
  *
  */
 public class CertificatesPlugin extends CordovaPlugin {
-
-    @Override
-	public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-		super.initialize(cordova, webView);
-		setUntrusted(true);
-	}
-
 	/**
      * Logging Tag
      */
@@ -66,6 +63,34 @@ public class CertificatesPlugin extends CordovaPlugin {
      * Untrusted Variable
      */
     private boolean allowUntrusted = false;
+    
+    private TrustManager[] trustAllCerts = new TrustManager[]{
+    	    new X509TrustManager() {
+    	        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+    	            return null;
+    	        }
+    	        public void checkClientTrusted(
+    	            java.security.cert.X509Certificate[] certs, String authType) {
+    	        }
+    	        public void checkServerTrusted(
+    	            java.security.cert.X509Certificate[] certs, String authType) {
+    	        }
+    	    }
+    	};
+
+    @Override
+	public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+		super.initialize(cordova, webView);
+		//setUntrusted(true);
+
+		// Install the all-trusting trust manager
+		try {
+		    SSLContext sc = SSLContext.getInstance("SSL");
+		    sc.init(null, trustAllCerts, new java.security.SecureRandom());
+		    HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+		} catch (Exception e) {
+		}
+	}
 
     /**
      * Executes the request.

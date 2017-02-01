@@ -29,11 +29,13 @@ package org.apache.cordova.engine;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import org.apache.cordova.CordovaResourceApi;
+import org.apache.cordova.CordovaResourceApi.OpenForReadResult;
 import org.apache.cordova.LOG;
-import org.apache.cordova.engine.SystemWebViewClient;
-import org.apache.cordova.engine.SystemWebViewEngine;
 
 import android.net.Uri;
 import android.net.http.SslError;
@@ -62,13 +64,26 @@ public class CertificatesCordovaWebViewClient extends SystemWebViewClient {
 	@Override
 	public WebResourceResponse shouldInterceptRequest(WebView arg0, String url) {
 		WebResourceResponse ret = super.shouldInterceptRequest(arg0, url);
-		if (ret == null && url!=null && url.contains("cloudfront.net")) {
+		/*if (ret == null && url!=null && url.contains("cloudfront.net") && url.startsWith("https://")) {
 			try {
 		        Log.d(TAG, "is a cloudfront url");
 				CordovaResourceApi resourceApi = getResourceApi();
 				Uri origUri = Uri.parse(url);
 		        Uri remappedUri = resourceApi.remapUri(origUri);
+		        
+                HttpURLConnection conn = (HttpURLConnection)new URL(remappedUri.toString()).openConnection();
+                conn.setDoInput(true);
+                String mimeType = conn.getHeaderField("Content-Type");
+                if (mimeType != null) {
+                    mimeType = mimeType.split(";")[0];
+                }
+                int length = conn.getContentLength();
+                InputStream inputStream = conn.getInputStream();
+                CordovaResourceApi.OpenForReadResult result = new OpenForReadResult(uri, inputStream, mimeType, length, null);
+		        
+		        
 	            CordovaResourceApi.OpenForReadResult result = resourceApi.openForRead(remappedUri, true);
+	            Log.d(TAG, "shouldInterceptRequest.  " + url + "  ret="+result);
 	            return new WebResourceResponse(result.mimeType, "UTF-8", result.inputStream);
 		    } catch (IOException e) {
 		        if (!(e instanceof FileNotFoundException)) {
@@ -77,7 +92,7 @@ public class CertificatesCordovaWebViewClient extends SystemWebViewClient {
 		        // Results in a 404.
 		        return new WebResourceResponse("text/plain", "UTF-8", null);
 		    }
-		}
+		}*/
         Log.d(TAG, "shouldInterceptRequest.  " + url + "  ret="+ret);
 		return ret;
 	}
