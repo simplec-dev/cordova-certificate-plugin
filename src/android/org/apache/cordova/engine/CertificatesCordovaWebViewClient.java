@@ -32,6 +32,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.cordova.CordovaResourceApi;
 import org.apache.cordova.CordovaResourceApi.OpenForReadResult;
@@ -60,12 +67,50 @@ public class CertificatesCordovaWebViewClient extends SystemWebViewClient {
     public static final String TAG = "CertificatesCordovaWebViewClient";
 
     private boolean allowUntrusted = false;
+    
+    private static void trustAllHosts() {
+        X509TrustManager easyTrustManager = new X509TrustManager() {
 
+            public void checkClientTrusted(
+                    X509Certificate[] chain,
+                    String authType) throws CertificateException {
+                // Oh, I am easy!
+            }
+
+            public void checkServerTrusted(
+                    X509Certificate[] chain,
+                    String authType) throws CertificateException {
+                // Oh, I am easy!
+            }
+
+            public X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+
+        };
+
+        // Create a trust manager that does not validate certificate chains
+        TrustManager[] trustAllCerts = new TrustManager[] {easyTrustManager};
+
+        // Install the all-trusting trust manager
+        try {
+            SSLContext sc = SSLContext.getInstance("TLS");
+
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+        } catch (Exception e) {
+                e.printStackTrace();
+        }
+    }
+    
 	@Override
 	public WebResourceResponse shouldInterceptRequest(WebView arg0, String url) {
 		WebResourceResponse ret = super.shouldInterceptRequest(arg0, url);
 		if (ret == null && url!=null && url.contains("cloudfront.net") && url.startsWith("https://")) {
 			try {
+			       trustAllHosts();
 		        Log.d(TAG, "is a cloudfront url url="+url);
 				CordovaResourceApi resourceApi = getResourceApi();
 		        Log.d(TAG, "is a cloudfront url resourceApi="+resourceApi);
@@ -74,18 +119,25 @@ public class CertificatesCordovaWebViewClient extends SystemWebViewClient {
 		        Uri remappedUri = resourceApi.remapUri(origUri);
 		        Log.d(TAG, "is a cloudfront url remappedUri="+remappedUri);
 		        
-                /*HttpURLConnection conn = (HttpURLConnection)new URL(remappedUri.toString()).openConnection();
+                HttpURLConnection conn = (HttpURLConnection)new URL(remappedUri.toString()).openConnection();
+		        Log.d(TAG, "is a cloudfront ZZZ 1");
                 conn.setDoInput(true);
+		        Log.d(TAG, "is a cloudfront ZZZ 2");
                 String mimeType = conn.getHeaderField("Content-Type");
+		        Log.d(TAG, "is a cloudfront ZZZ 3");
                 if (mimeType != null) {
                     mimeType = mimeType.split(";")[0];
                 }
+		        Log.d(TAG, "is a cloudfront ZZZ 4");
                 int length = conn.getContentLength();
+		        Log.d(TAG, "is a cloudfront ZZZ 5");
                 InputStream inputStream = conn.getInputStream();
-                CordovaResourceApi.OpenForReadResult result = new OpenForReadResult(uri, inputStream, mimeType, length, null);*/
+		        Log.d(TAG, "is a cloudfront ZZZ 6");
+                CordovaResourceApi.OpenForReadResult result = new OpenForReadResult(remappedUri, inputStream, mimeType, length, null);
+
+		        Log.d(TAG, "is a cloudfront ZZZ 7");
 		        
-		        
-	            CordovaResourceApi.OpenForReadResult result = resourceApi.openForRead(remappedUri, true);
+	            //CordovaResourceApi.OpenForReadResult result = resourceApi.openForRead(remappedUri, true);
 	            Log.d(TAG, "shouldInterceptRequest.  " + url + "  ret="+result);
 	            return new WebResourceResponse(result.mimeType, "UTF-8", result.inputStream);
 		    } catch (IOException e) {
