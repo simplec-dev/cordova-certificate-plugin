@@ -68,8 +68,11 @@ public class CertificatesCordovaWebViewClient extends SystemWebViewClient {
 			try {
 		        Log.d(TAG, "is a cloudfront url");
 				CordovaResourceApi resourceApi = getResourceApi();
+		        Log.d(TAG, "is a cloudfront url resourceApi="+resourceApi);
 				Uri origUri = Uri.parse(url);
+		        Log.d(TAG, "is a cloudfront url origUri="+origUri);
 		        Uri remappedUri = resourceApi.remapUri(origUri);
+		        Log.d(TAG, "is a cloudfront url remappedUri="+remappedUri);
 		        
                 /*HttpURLConnection conn = (HttpURLConnection)new URL(remappedUri.toString()).openConnection();
                 conn.setDoInput(true);
