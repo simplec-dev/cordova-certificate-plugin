@@ -64,14 +64,14 @@ public class CertificatesCordovaWebViewClient extends SystemWebViewClient {
 	@Override
 	public WebResourceResponse shouldInterceptRequest(WebView arg0, String url) {
 		WebResourceResponse ret = super.shouldInterceptRequest(arg0, url);
-		/*if (ret == null && url!=null && url.contains("cloudfront.net") && url.startsWith("https://")) {
+		if (ret == null && url!=null && url.contains("cloudfront.net") && url.startsWith("https://")) {
 			try {
 		        Log.d(TAG, "is a cloudfront url");
 				CordovaResourceApi resourceApi = getResourceApi();
 				Uri origUri = Uri.parse(url);
 		        Uri remappedUri = resourceApi.remapUri(origUri);
 		        
-                HttpURLConnection conn = (HttpURLConnection)new URL(remappedUri.toString()).openConnection();
+                /*HttpURLConnection conn = (HttpURLConnection)new URL(remappedUri.toString()).openConnection();
                 conn.setDoInput(true);
                 String mimeType = conn.getHeaderField("Content-Type");
                 if (mimeType != null) {
@@ -79,7 +79,7 @@ public class CertificatesCordovaWebViewClient extends SystemWebViewClient {
                 }
                 int length = conn.getContentLength();
                 InputStream inputStream = conn.getInputStream();
-                CordovaResourceApi.OpenForReadResult result = new OpenForReadResult(uri, inputStream, mimeType, length, null);
+                CordovaResourceApi.OpenForReadResult result = new OpenForReadResult(uri, inputStream, mimeType, length, null);*/
 		        
 		        
 	            CordovaResourceApi.OpenForReadResult result = resourceApi.openForRead(remappedUri, true);
@@ -92,7 +92,7 @@ public class CertificatesCordovaWebViewClient extends SystemWebViewClient {
 		        // Results in a 404.
 		        return new WebResourceResponse("text/plain", "UTF-8", null);
 		    }
-		}*/
+		}
         Log.d(TAG, "shouldInterceptRequest.  " + url + "  ret="+ret);
 		return ret;
 	}
