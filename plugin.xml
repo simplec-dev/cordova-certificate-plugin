@@ -24,7 +24,7 @@ SOFTWARE.
 -->
 
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-           id="cordova-plugin-certificates"
+           id="simplec.plugin.certificates"
       version="0.6.4">
 
     <name>Certificate Plugin</name>
@@ -34,8 +34,6 @@ SOFTWARE.
     <author>Martin Reinhardt</author>
     <license>MIT</license>
     <keywords>cordova,certificates,ssl</keywords>
-    <repo>https://github.com/hypery2k/cordova-certificate-plugin.git</repo>
-    <issue>https://github.com/hypery2k/cordova-certificate-plugin/issues</issue>
 
     <engines>
       <engine name="cordova-android" version=">=4.1.0" />
