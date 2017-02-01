@@ -27,9 +27,14 @@
  */
 package de.martinreinhardt.cordova.plugins;
 
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.cordova.CallbackContext;
@@ -63,32 +68,35 @@ public class CertificatesPlugin extends CordovaPlugin {
      * Untrusted Variable
      */
     private boolean allowUntrusted = false;
-    
-    private TrustManager[] trustAllCerts = new TrustManager[]{
-    	    new X509TrustManager() {
-    	        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-    	            return null;
-    	        }
-    	        public void checkClientTrusted(
-    	            java.security.cert.X509Certificate[] certs, String authType) {
-    	        }
-    	        public void checkServerTrusted(
-    	            java.security.cert.X509Certificate[] certs, String authType) {
-    	        }
-    	    }
-    	};
 
+	private static void trustEveryone() { 
+	    try { 
+	            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier(){ 
+	                    public boolean verify(String hostname, SSLSession session) { 
+	                            return true; 
+	                    }}); 
+	            SSLContext context = SSLContext.getInstance("TLS"); 
+	            context.init(null, new X509TrustManager[]{new X509TrustManager(){ 
+	                    public void checkClientTrusted(X509Certificate[] chain, 
+	                                    String authType) throws CertificateException {} 
+	                    public void checkServerTrusted(X509Certificate[] chain, 
+	                                    String authType) throws CertificateException {} 
+	                    public X509Certificate[] getAcceptedIssuers() { 
+	                            return new X509Certificate[0]; 
+	                    }}}, new SecureRandom()); 
+	            HttpsURLConnection.setDefaultSSLSocketFactory( 
+	                            context.getSocketFactory()); 
+	            
+	    } catch (Exception e) { // should never happen 
+	            e.printStackTrace(); 
+	    } 
+	} 
+	
     @Override
 	public void initialize(CordovaInterface cordova, CordovaWebView webView) {
 		super.initialize(cordova, webView);
-
-		// Install the all-trusting trust manager
-		try {
-		    SSLContext sc = SSLContext.getInstance("SSL");
-		    sc.init(null, trustAllCerts, new java.security.SecureRandom());
-		    HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-		} catch (Exception e) {
-		}
+		
+		trustEveryone();
 
 		setUntrusted(true);
 	}
