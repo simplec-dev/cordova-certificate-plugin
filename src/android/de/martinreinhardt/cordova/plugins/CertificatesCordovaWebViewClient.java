@@ -50,14 +50,16 @@ public class CertificatesCordovaWebViewClient extends SystemWebViewClient {
 
 	@Override
 	public WebResourceResponse shouldInterceptRequest(WebView arg0, String arg1) {
-        Log.d(TAG, "shouldInterceptRequest.  " + arg1);
-		return super.shouldInterceptRequest(arg0, arg1);
+		WebResourceResponse ret = super.shouldInterceptRequest(arg0, arg1);
+        Log.d(TAG, "shouldInterceptRequest.  " + arg1 + "  ret="+ret.toString());
+		return ret;
 	}
 
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        Log.d(TAG, "shouldOverrideUrlLoading.  " + url);
-		return super.shouldOverrideUrlLoading(view, url);
+		boolean ret = super.shouldOverrideUrlLoading(view, url);
+        Log.d(TAG, "shouldOverrideUrlLoading.  " + url + "  ret="+ret);
+        return ret;
 	}
 
 	/**
