@@ -66,7 +66,7 @@ public class CertificatesCordovaWebViewClient extends SystemWebViewClient {
 		WebResourceResponse ret = super.shouldInterceptRequest(arg0, url);
 		if (ret == null && url!=null && url.contains("cloudfront.net") && url.startsWith("https://")) {
 			try {
-		        Log.d(TAG, "is a cloudfront url");
+		        Log.d(TAG, "is a cloudfront url url="+url);
 				CordovaResourceApi resourceApi = getResourceApi();
 		        Log.d(TAG, "is a cloudfront url resourceApi="+resourceApi);
 				Uri origUri = Uri.parse(url);
