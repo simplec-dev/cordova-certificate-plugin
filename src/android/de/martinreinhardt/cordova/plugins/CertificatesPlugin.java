@@ -81,7 +81,6 @@ public class CertificatesPlugin extends CordovaPlugin {
     @Override
 	public void initialize(CordovaInterface cordova, CordovaWebView webView) {
 		super.initialize(cordova, webView);
-		//setUntrusted(true);
 
 		// Install the all-trusting trust manager
 		try {
@@ -90,6 +89,8 @@ public class CertificatesPlugin extends CordovaPlugin {
 		    HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 		} catch (Exception e) {
 		}
+
+		setUntrusted(true);
 	}
 
     /**
