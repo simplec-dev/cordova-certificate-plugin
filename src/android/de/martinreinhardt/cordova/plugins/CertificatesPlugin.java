@@ -31,6 +31,7 @@ import org.apache.cordova.engine.SystemWebViewEngine;
 import org.apache.cordova.engine.SystemWebView;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaActivity;
+import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
@@ -49,7 +50,13 @@ import android.util.Log;
  */
 public class CertificatesPlugin extends CordovaPlugin {
 
-    /**
+    @Override
+	public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+		super.initialize(cordova, webView);
+		setUntrusted(true);
+	}
+
+	/**
      * Logging Tag
      */
     private static final String LOG_TAG = "Certificates";
@@ -84,24 +91,7 @@ public class CertificatesPlugin extends CordovaPlugin {
 
         if (action.equals("setUntrusted")) {
               try {
-                allowUntrusted = args.getBoolean(0);
-                Log.d(LOG_TAG, "Setting allowUntrusted to " + allowUntrusted);
-                cordova.getActivity().runOnUiThread(new Runnable() {
-                        public void run() {
-                              try {
-                                CordovaActivity ca = (CordovaActivity) cordova.getActivity();
-                                SystemWebView view = (SystemWebView)webView.getView();
-                                CertificatesCordovaWebViewClient cWebClient =
-                                    new CertificatesCordovaWebViewClient((SystemWebViewEngine)webView.getEngine());
-
-                                cWebClient.setAllowUntrusted(allowUntrusted);
-                                webView.clearCache();
-                                view.setWebViewClient(cWebClient);
-                              } catch(Exception e){
-                                Log.e(LOG_TAG, "Got unkown error during setting webview in activity", e);
-                              }
-                        }
-                });
+                setUntrusted(args.getBoolean(0));
                 callbackContext.success();
                 return true;
               } catch(Exception e){
@@ -110,5 +100,26 @@ public class CertificatesPlugin extends CordovaPlugin {
         }
         callbackContext.error("Invalid Command");
         return false;
+    }
+    
+    public void setUntrusted(boolean untrusted) {
+    	allowUntrusted = untrusted;
+        Log.d(LOG_TAG, "Setting allowUntrusted to " + allowUntrusted);
+        cordova.getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                      try {
+                        CordovaActivity ca = (CordovaActivity) cordova.getActivity();
+                        SystemWebView view = (SystemWebView)webView.getView();
+                        CertificatesCordovaWebViewClient cWebClient =
+                            new CertificatesCordovaWebViewClient((SystemWebViewEngine)webView.getEngine());
+
+                        cWebClient.setAllowUntrusted(allowUntrusted);
+                        webView.clearCache();
+                        view.setWebViewClient(cWebClient);
+                      } catch(Exception e){
+                        Log.e(LOG_TAG, "Got unkown error during setting webview in activity", e);
+                      }
+                }
+        });
     }
 }

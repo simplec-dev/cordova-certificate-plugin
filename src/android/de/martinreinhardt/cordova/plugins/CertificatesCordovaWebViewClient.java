@@ -32,7 +32,9 @@ import org.apache.cordova.engine.SystemWebViewClient;
 
 import android.net.http.SslError;
 import android.util.Log;
+import android.webkit.HttpAuthHandler;
 import android.webkit.SslErrorHandler;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 
 /**
@@ -46,7 +48,19 @@ import android.webkit.WebView;
  */
 public class CertificatesCordovaWebViewClient extends SystemWebViewClient {
 
-    /**
+	@Override
+	public WebResourceResponse shouldInterceptRequest(WebView arg0, String arg1) {
+        Log.d(TAG, "shouldInterceptRequest.  " + arg1);
+		return super.shouldInterceptRequest(arg0, arg1);
+	}
+
+	@Override
+	public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        Log.d(TAG, "shouldOverrideUrlLoading.  " + url);
+		return super.shouldOverrideUrlLoading(view, url);
+	}
+
+	/**
      * Logging Tag
      */
     public static final String TAG = "CertificatesCordovaWebViewClient";
