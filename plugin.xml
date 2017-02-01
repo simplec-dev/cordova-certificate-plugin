@@ -25,7 +25,7 @@ SOFTWARE.
 
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
            id="simplec.plugin.certificates"
-      version="0.6.7">
+      version="0.6.10">
 
     <name>Certificate Plugin</name>
     <description>
@@ -49,6 +49,7 @@ SOFTWARE.
         <config-file target="config.xml" parent="/*">
     		<feature name="CDVCertificate">
     			<param name="ios-package" value="CDVCertificate"/>
+            	<param name="onload" value="true" />
     		</feature>
         </config-file>
 
@@ -64,6 +65,7 @@ SOFTWARE.
         <config-file target="res/xml/config.xml" parent="/*">            
             <feature name="CertificatesPlugin" >
                 <param name="android-package" value="de.martinreinhardt.cordova.plugins.CertificatesPlugin"/>
+            	<param name="onload" value="true" />
             </feature>
         </config-file>
 
