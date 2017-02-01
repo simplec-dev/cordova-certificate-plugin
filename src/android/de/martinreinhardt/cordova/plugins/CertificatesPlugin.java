@@ -91,7 +91,12 @@ public class CertificatesPlugin extends CordovaPlugin {
 
         if (action.equals("setUntrusted")) {
               try {
-                setUntrusted(args.getBoolean(0));
+            	  allowUntrusted = args.getBoolean(0);
+                cordova.getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                  	  setUntrusted(allowUntrusted);
+                    }
+                });
                 callbackContext.success();
                 return true;
               } catch(Exception e){
@@ -105,21 +110,16 @@ public class CertificatesPlugin extends CordovaPlugin {
     public void setUntrusted(boolean untrusted) {
     	allowUntrusted = untrusted;
         Log.d(LOG_TAG, "Setting allowUntrusted to " + allowUntrusted);
-        cordova.getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                      try {
-                        CordovaActivity ca = (CordovaActivity) cordova.getActivity();
-                        SystemWebView view = (SystemWebView)webView.getView();
-                        CertificatesCordovaWebViewClient cWebClient =
-                            new CertificatesCordovaWebViewClient((SystemWebViewEngine)webView.getEngine());
+        try {
+            SystemWebView view = (SystemWebView)webView.getView();
+            CertificatesCordovaWebViewClient cWebClient =
+                new CertificatesCordovaWebViewClient((SystemWebViewEngine)webView.getEngine());
 
-                        cWebClient.setAllowUntrusted(allowUntrusted);
-                        webView.clearCache();
-                        view.setWebViewClient(cWebClient);
-                      } catch(Exception e){
-                        Log.e(LOG_TAG, "Got unkown error during setting webview in activity", e);
-                      }
-                }
-        });
+            cWebClient.setAllowUntrusted(allowUntrusted);
+            webView.clearCache();
+            view.setWebViewClient(cWebClient);
+          } catch(Exception e){
+            Log.e(LOG_TAG, "Got unkown error during setting webview in activity", e);
+          }
     }
 }
