@@ -6,3 +6,5 @@
 #
 # Pods/
 
+/bin/
+/build/
