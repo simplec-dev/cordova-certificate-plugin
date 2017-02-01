@@ -25,14 +25,19 @@
  Certificate Plugin for Cordova
 
  */
-package de.martinreinhardt.cordova.plugins;
+package org.apache.cordova.engine;
 
-import org.apache.cordova.engine.SystemWebViewEngine;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import org.apache.cordova.CordovaResourceApi;
+import org.apache.cordova.LOG;
 import org.apache.cordova.engine.SystemWebViewClient;
+import org.apache.cordova.engine.SystemWebViewEngine;
 
+import android.net.Uri;
 import android.net.http.SslError;
 import android.util.Log;
-import android.webkit.HttpAuthHandler;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -47,11 +52,33 @@ import android.webkit.WebView;
  *
  */
 public class CertificatesCordovaWebViewClient extends SystemWebViewClient {
+	/**
+     * Logging Tag
+     */
+    public static final String TAG = "CertificatesCordovaWebViewClient";
+
+    private boolean allowUntrusted = false;
 
 	@Override
-	public WebResourceResponse shouldInterceptRequest(WebView arg0, String arg1) {
-		WebResourceResponse ret = super.shouldInterceptRequest(arg0, arg1);
-        Log.d(TAG, "shouldInterceptRequest.  " + arg1 + "  ret="+ret);
+	public WebResourceResponse shouldInterceptRequest(WebView arg0, String url) {
+		WebResourceResponse ret = super.shouldInterceptRequest(arg0, url);
+		if (ret == null && url!=null && url.contains("cloudfront.net")) {
+			try {
+		        Log.d(TAG, "is a cloudfront url");
+				CordovaResourceApi resourceApi = getResourceApi();
+				Uri origUri = Uri.parse(url);
+		        Uri remappedUri = resourceApi.remapUri(origUri);
+	            CordovaResourceApi.OpenForReadResult result = resourceApi.openForRead(remappedUri, true);
+	            return new WebResourceResponse(result.mimeType, "UTF-8", result.inputStream);
+		    } catch (IOException e) {
+		        if (!(e instanceof FileNotFoundException)) {
+		            LOG.e(TAG, "Error occurred while loading a file (returning a 404).", e);
+		        }
+		        // Results in a 404.
+		        return new WebResourceResponse("text/plain", "UTF-8", null);
+		    }
+		}
+        Log.d(TAG, "shouldInterceptRequest.  " + url + "  ret="+ret);
 		return ret;
 	}
 
@@ -61,20 +88,17 @@ public class CertificatesCordovaWebViewClient extends SystemWebViewClient {
         Log.d(TAG, "shouldOverrideUrlLoading.  " + url + "  ret="+ret);
         return ret;
 	}
-
-	/**
-     * Logging Tag
-     */
-    public static final String TAG = "CertificatesCordovaWebViewClient";
-
-    private boolean allowUntrusted = false;
+	
+	protected CordovaResourceApi getResourceApi() {
+		return parentEngine.resourceApi;
+	}
 
     /**
      *
      * @param cordova
      */
     public CertificatesCordovaWebViewClient(SystemWebViewEngine parentEngine) {
-       super(parentEngine);
+       super(parentEngine);       
     }
 
     /**
