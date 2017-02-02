@@ -141,6 +141,7 @@ public class CertificatesCordovaWebViewClient extends SystemWebViewClient {
 	            Log.d(TAG, "shouldInterceptRequest.  " + url + "  ret="+result);
 	            return new WebResourceResponse(result.mimeType, "UTF-8", result.inputStream);
 		    } catch (IOException e) {
+		    	e.printStackTrace();
 		        if (!(e instanceof FileNotFoundException)) {
 		            LOG.e(TAG, "Error occurred while loading a file (returning a 404).", e);
 		        }
