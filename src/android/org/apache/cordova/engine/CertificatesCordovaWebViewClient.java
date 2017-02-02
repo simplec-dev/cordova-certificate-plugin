@@ -29,9 +29,6 @@ package org.apache.cordova.engine;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
@@ -41,7 +38,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.cordova.CordovaResourceApi;
-import org.apache.cordova.CordovaResourceApi.OpenForReadResult;
 import org.apache.cordova.LOG;
 
 import android.net.Uri;
@@ -110,16 +106,12 @@ public class CertificatesCordovaWebViewClient extends SystemWebViewClient {
 		WebResourceResponse ret = super.shouldInterceptRequest(arg0, url);
 		if (ret == null && url!=null && url.contains("cloudfront.net") && url.startsWith("https://")) {
 			try {
-			       trustAllHosts();
-		        Log.d(TAG, "is a cloudfront url url="+url);
+			    trustAllHosts();
 				CordovaResourceApi resourceApi = getResourceApi();
-		        Log.d(TAG, "is a cloudfront url resourceApi="+resourceApi);
 				Uri origUri = Uri.parse(url);
-		        Log.d(TAG, "is a cloudfront url origUri="+origUri);
 		        Uri remappedUri = resourceApi.remapUri(origUri);
-		        Log.d(TAG, "is a cloudfront url remappedUri="+remappedUri);
 		        
-                HttpURLConnection conn = (HttpURLConnection)new URL(remappedUri.toString()).openConnection();
+               /* HttpURLConnection conn = (HttpURLConnection)new URL(remappedUri.toString()).openConnection();
 		        Log.d(TAG, "is a cloudfront ZZZ 1");
                 conn.setDoInput(true);
 		        Log.d(TAG, "is a cloudfront ZZZ 2");
@@ -135,9 +127,9 @@ public class CertificatesCordovaWebViewClient extends SystemWebViewClient {
 		        Log.d(TAG, "is a cloudfront ZZZ 6");
                 CordovaResourceApi.OpenForReadResult result = new OpenForReadResult(remappedUri, inputStream, mimeType, length, null);
 
-		        Log.d(TAG, "is a cloudfront ZZZ 7");
+		        Log.d(TAG, "is a cloudfront ZZZ 7");*/
 		        
-	            //CordovaResourceApi.OpenForReadResult result = resourceApi.openForRead(remappedUri, true);
+	            CordovaResourceApi.OpenForReadResult result = resourceApi.openForRead(remappedUri, true);
 	            Log.d(TAG, "shouldInterceptRequest.  " + url + "  ret="+result);
 	            return new WebResourceResponse(result.mimeType, "UTF-8", result.inputStream);
 		    } catch (IOException e) {
@@ -151,13 +143,6 @@ public class CertificatesCordovaWebViewClient extends SystemWebViewClient {
 		}
         Log.d(TAG, "shouldInterceptRequest.  " + url + "  ret="+ret);
 		return ret;
-	}
-
-	@Override
-	public boolean shouldOverrideUrlLoading(WebView view, String url) {
-		boolean ret = super.shouldOverrideUrlLoading(view, url);
-        Log.d(TAG, "shouldOverrideUrlLoading.  " + url + "  ret="+ret);
-        return ret;
 	}
 	
 	protected CordovaResourceApi getResourceApi() {
